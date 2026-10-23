@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi Súper</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--tx:#1f2a24;--mu:#6b756f;--ac:#2f7d57;--acb:#e3f1ea;--wa:#c2410c;--wab:#fdeadd;--bd:#e2e0d8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171b19;--card:#212724;--tx:#e8ece9;--mu:#98a39c;--ac:#5fc08f;--acb:#23382d;--wa:#f59e6b;--wab:#3d2a1e;--bd:#323a36}}
+:root[data-theme="dark"]{--bg:#171b19;--card:#212724;--tx:#e8ece9;--mu:#98a39c;--ac:#5fc08f;--acb:#23382d;--wa:#f59e6b;--wab:#3d2a1e;--bd:#323a36}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.w{max-width:720px;margin:0 auto;padding:14px}
+h1{font-size:22px;margin:4px 0 12px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab{flex:1;padding:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font-size:15px;cursor:pointer}
+.tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.badge{background:var(--wa);color:#fff;border-radius:99px;padding:1px 8px;font-size:12px;margin-left:4px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+input,select,button{font:inherit;color:var(--tx)}
+input,select{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px;min-width:0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>input{flex:1 1 140px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:9px 14px;cursor:pointer}
+.btn.g{background:var(--acb);color:var(--ac)}
+.ic{background:none;border:0;cursor:pointer;color:var(--mu);font-size:18px;padding:4px 8px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px}
+.chip{white-space:nowrap;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:99px;padding:5px 12px;font-size:14px;cursor:pointer}
+.chip.on{background:var(--acb);border-color:var(--ac);color:var(--ac)}
+.ph{display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.cat{font-size:12px;color:var(--mu);font-weight:400}
+.v{display:flex;gap:8px;flex-wrap:nowrap;align-items:center;padding:8px 0;border-top:1px solid var(--bd)}
+.v.low{background:var(--wab);margin:0 -12px;padding:8px 12px}
+.vn{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q{display:flex;align-items:center;gap:4px}
+.q button{width:34px;height:34px;border-radius:8px;border:1px solid var(--bd);background:var(--card);cursor:pointer;font-size:18px}
+.q b{min-width:28px;text-align:center}
+.sm{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:4px}
+.sm input{width:46px;padding:5px}
+.add{width:100%;margin-top:6px;font-size:14px}
+.li{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--bd)}
+.li input[type=checkbox]{width:22px;height:22px;accent-color:var(--ac)}
+.li.d .t{text-decoration:line-through;color:var(--mu)}
+.t{flex:1}
+.li input[type=number]{width:56px}
+.mu{color:var(--mu);font-size:13px}
+.e{text-align:center;color:var(--mu);padding:28px 10px}
+</style>
+</head>
+<body>
+<div class="w">
+<h1>🛒 Mi Súper</h1>
+<div class="tabs"><button class="tab" data-a="tab" data-v="s">📦 Stock</button><button class="tab" data-a="tab" data-v="l">📝 Lista <span class="badge" id="bd"></span></button></div>
+<div id="app"></div>
+</div>
+<script>
+var KEY='super-v2',S,tab='s',cat='Todas',q='';
+var uid=function(){return Math.random().toString(36).slice(2,9)};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function it(n,c,st){return{id:uid(),name:n,cat:c,stock:st,min:0,buy:1}}
+function seed(){
+  var low={'Hamburguesas':'Carnes y congelados','Papel higiénico':'Higiene','Yogurt':'Lácteos','Yerba':'Almacén','Queso feta':'Lácteos','Queso para rallar':'Lácteos','Queso cremoso':'Lácteos','Queso rayado chicos':'Lácteos','Servilletas':'Limpieza','Mayonesa':'Almacén','Ketchup':'Almacén','Barritas de cereal':'Almacén','Pan rallado':'Almacén','Patitas':'Carnes y congelados','Esponja':'Limpieza','Detergente':'Limpieza'};
+  var ok={'Leche':'Lácteos','Huevos':'Almacén','Aceite':'Almacén','Azúcar':'Almacén','Arroz':'Almacén','Fideos':'Almacén','Harina 0000':'Almacén','Galletitas':'Almacén','Café':'Almacén','Té':'Almacén','Manteca':'Lácteos','Jabón de ropa':'Limpieza','Lavandina':'Limpieza','Shampoo':'Higiene','Pasta de dientes':'Higiene','Rollo de cocina':'Higiene','Bolsas de basura':'Limpieza','Pan lactal':'Panificados','Bizcochuelo vainilla':'Almacén','Bizcochuelo limón':'Almacén','Bizcochuelo chocolate':'Almacén'};
+  var p=[],k;
+  for(k in low)p.push(it(k,low[k],0));
+  for(k in ok)p.push(it(k,ok[k],2));
+  return{p:p,m:[],c:{}};
+}
+function load(){
+  try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+  if(!S||!S.p){
+    var o=null;try{o=JSON.parse(localStorage.getItem('super-v1'))}catch(e){}
+    if(o&&o.p){var f=[];o.p.forEach(function(p){(p.vars||[]).forEach(function(v){f.push({id:v.id,name:p.name+(v.name&&v.name!=='Original'?' '+v.name.toLowerCase():''),cat:p.cat,stock:v.stock,min:v.min,buy:v.buy})})});S={p:f,m:o.m||[],c:o.c||{}}}
+    else S=seed();
+  }
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function cats(){var a=[];S.p.forEach(function(p){if(a.indexOf(p.cat)<0)a.push(p.cat)});return a.sort()}
+function low(){return S.p.filter(function(p){return p.stock<=p.min})}
+function find(id){for(var i=0;i<S.p.length;i++)if(S.p[i].id===id)return S.p[i]}
+function viewStock(){
+  var cs=['Todas'].concat(cats()),h='',g={},n=0;
+  h+='<div class="card"><div class="row"><input id="np" placeholder="Producto (ej: Bizcochuelo vainilla)"><input id="nc" list="cl" placeholder="Categoría"><datalist id="cl">'+cats().map(function(c){return'<option value="'+esc(c)+'">'}).join('')+'</datalist><button class="btn" data-a="addp">Agregar</button></div></div>';
+  h+='<input id="sq" placeholder="🔍 Buscar..." value="'+esc(q)+'" style="width:100%;margin-bottom:8px">';
+  h+='<div class="chips">'+cs.map(function(c){return'<button class="chip'+(c===cat?' on':'')+'" data-a="cat" data-v="'+esc(c)+'">'+esc(c)+'</button>'}).join('')+'</div>';
+  S.p.forEach(function(p){
+    if(cat!=='Todas'&&p.cat!==cat)return;
+    if(q&&p.name.toLowerCase().indexOf(q.toLowerCase())<0)return;
+    (g[p.cat]=g[p.cat]||[]).push(p);
+  });
+  Object.keys(g).sort().forEach(function(c){
+    h+='<div class="card"><div class="ph">'+esc(c)+'</div>';
+    g[c].sort(function(a,b){return a.name.localeCompare(b.name)}).forEach(function(p){
+      n++;
+      h+='<div class="v'+(p.stock<=p.min?' low':'')+'"><span class="vn">'+esc(p.name)+'</span><div class="q"><button data-a="dec" data-id="'+p.id+'">−</button><b>'+p.stock+'</b><button data-a="inc" data-id="'+p.id+'">+</button></div><label class="sm" title="Avisar cuando el stock sea menor o igual a este número">≤<input type="number" min="0" data-f="min" data-id="'+p.id+'" value="'+p.min+'"></label><button class="ic" data-a="delp" data-id="'+p.id+'" title="Eliminar">🗑</button></div>';
+    });
+    h+='</div>';
+  });
+  if(!n)h+='<div class="e">No hay productos para mostrar.</div>';
+  return h;
+}
+function viewList(){
+  var L=low(),h='',g={},any=false;
+  L.forEach(function(p){(g[p.cat]=g[p.cat]||[]).push(p)});
+  h+='<div class="card"><div class="row"><input id="mi" placeholder="Agregar algo suelto a la lista (ej: lapicera)"><button class="btn" data-a="addm">Agregar</button></div></div>';
+  Object.keys(g).sort().forEach(function(c){
+    any=true;
+    h+='<div class="card"><div class="ph">'+esc(c)+'</div>';
+    g[c].forEach(function(p){var d=S.c[p.id];
+      h+='<div class="li'+(d?' d':'')+'"><input type="checkbox" data-a="chk" data-id="'+p.id+'"'+(d?' checked':'')+'><span class="t">'+esc(p.name)+' <span class="mu">(stock '+p.stock+')</span></span><input type="number" min="1" data-f="buy" data-id="'+p.id+'" value="'+p.buy+'"></div>';
+    });
+    h+='</div>';
+  });
+  if(S.m.length){any=true;h+='<div class="card"><div class="ph">Otros</div>'+S.m.map(function(m){return'<div class="li'+(m.done?' d':'')+'"><input type="checkbox" data-a="chkm" data-id="'+m.id+'"'+(m.done?' checked':'')+'><span class="t">'+esc(m.name)+'</span><button class="ic" data-a="delm" data-id="'+m.id+'">×</button></div>'}).join('')+'</div>'}
+  if(!any)h+='<div class="e">✅ No te falta nada. Cuando algo llegue al mínimo, aparece acá solo.</div>';
+  else h+='<div class="row"><button class="btn g" data-a="copy">📋 Copiar para WhatsApp</button><button class="btn" data-a="done">✔ Terminé la compra</button></div><p class="mu">Al terminar, lo tildado se suma al stock y lo suelto tildado se borra.</p>';
+  return h;
+}
+function render(){
+  var a=document.activeElement,keep=a&&a.id==='sq';
+  document.getElementById('app').innerHTML=tab==='s'?viewStock():viewList();
+  var n=low().length+S.m.length;document.getElementById('bd').textContent=n;document.getElementById('bd').style.display=n?'':'none';
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('on',b.dataset.v===tab)});
+  if(keep){var s=document.getElementById('sq');s.focus();s.setSelectionRange(q.length,q.length)}
+}
+function listText(){
+  var t=['🛒 Lista del súper'];
+  low().forEach(function(p){if(!S.c[p.id])t.push('• '+p.name+(p.buy>1?' x'+p.buy:''))});
+  S.m.forEach(function(m){if(!m.done)t.push('• '+m.name)});
+  return t.join('\n');
+}
+function copy(){
+  var t=listText();
+  function fb(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}a.remove()}
+  try{navigator.clipboard.writeText(t).catch(fb)}catch(e){fb()}
+  var b=document.querySelector('[data-a=copy]');if(b){b.textContent='¡Copiada!';setTimeout(function(){b.textContent='📋 Copiar para WhatsApp'},1500)}
+}
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-a]');if(!el)return;
+  var a=el.dataset.a,id=el.dataset.id,f;
+  if(a==='tab'){tab=el.dataset.v}
+  else if(a==='cat'){cat=el.dataset.v}
+  else if(a==='addp'){
+    var n=document.getElementById('np').value.trim();if(!n)return;
+    S.p.push(it(n,document.getElementById('nc').value.trim()||'Otros',1));
+  }
+  else if(a==='inc'){f=find(id);if(f)f.stock++}
+  else if(a==='dec'){f=find(id);if(f&&f.stock>0){f.stock--;delete S.c[id]}}
+  else if(a==='delp'){if(!confirm('¿Eliminar este producto?'))return;S.p=S.p.filter(function(p){return p.id!==id})}
+  else if(a==='chk'){if(el.checked)S.c[id]=1;else delete S.c[id]}
+  else if(a==='chkm'){S.m.forEach(function(m){if(m.id===id)m.done=el.checked})}
+  else if(a==='delm'){S.m=S.m.filter(function(m){return m.id!==id})}
+  else if(a==='addm'){var i=document.getElementById('mi'),v=i.value.trim();if(!v)return;S.m.push({id:uid(),name:v,done:false})}
+  else if(a==='copy'){copy();return}
+  else if(a==='done'){
+    low().forEach(function(p){if(S.c[p.id])p.stock+=Math.max(1,p.buy)});
+    S.c={};S.m=S.m.filter(function(m){return!m.done});
+  }
+  save();render();
+});
+document.addEventListener('change',function(e){
+  var el=e.target,f=el.dataset.f,id=el.dataset.id;if(!f)return;
+  var x=find(id);if(x){var n2=parseInt(el.value,10);x[f]=isNaN(n2)?0:Math.max(f==='buy'?1:0,n2)}
+  save();render();
+});
+document.addEventListener('input',function(e){if(e.target.id==='sq'){q=e.target.value;render()}});
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;var t=e.target;
+  if(t.id==='mi')document.querySelector('[data-a=addm]').click();
+  else if(t.id==='np'||t.id==='nc')document.querySelector('[data-a=addp]').click();
+});
+load();render();
+</script>
+</body>
+</html>
